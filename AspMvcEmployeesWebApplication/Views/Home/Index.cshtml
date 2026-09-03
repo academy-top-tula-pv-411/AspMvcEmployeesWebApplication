@@ -1,0 +1,39 @@
+﻿@using AspMvcEmployeesWebApplication.Models
+@model IEnumerable<Employee>
+
+@{
+    ViewData["Title"] = "Employees List";
+}
+
+<h2>@ViewData["Title"]</h2>
+<div>
+    <a asp-action="Create">Add new Employee</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>Age</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var e in Model)
+        {
+            <tr>
+                <td>@e.Name</td>
+                <td>@e.Age</td>
+                <td>
+                    <a asp-action="Edit" asp-controller="Home" asp-route-id="@e.Id">Edit</a>
+                </td>
+                <td>
+                    <form asp-controller="Home" asp-action="Delete" method="post" asp-route-id="@e.Id">
+                        <input type="submit" value="Delete" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
