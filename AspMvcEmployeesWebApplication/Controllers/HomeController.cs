@@ -12,53 +12,28 @@ namespace AspMvcEmployeesWebApplication.Controllers
         {
             this.dataContext = dataContext;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(SortState sortOrder = SortState.NameAsc)
         {
-            return View(await dataContext.Employees.ToListAsync());
-        }
+            ViewData["NameSort"] = sortOrder == SortState.NameAsc ? SortState.NameDesc : SortState.NameAsc;
+            ViewData["AgeSort"] = sortOrder == SortState.AgeAsc ? SortState.AgeDesc : SortState.AgeAsc;
+            ViewData["CompanySort"] = sortOrder == SortState.CompanyAsc ? SortState.CompanyDesc : SortState.CompanyAsc;
 
-        public IActionResult Create()
-        {
-            return View();
-        }
+            IQueryable<Employee> employees = dataContext.Employees
+                                         .Include(e => e.Company);
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Employee employee)
-        {
-            dataContext.Employees.Add(employee);
-            await dataContext.SaveChangesAsync();
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if(id is not null)
+            employees = sortOrder switch
             {
-                Employee employee = new() { Id = id.Value };
-                dataContext.Entry(employee).State = EntityState.Deleted;
-                await dataContext.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+                SortState.NameDesc => employees.OrderByDescending(e => e.Name),
+                SortState.AgeAsc => employees.OrderBy(e => e.Age),
+                SortState.AgeDesc => employees.OrderByDescending(e => e.Age),
+                SortState.CompanyAsc => employees.OrderBy(e => e.Company!.Title),
+                SortState.CompanyDesc => employees.OrderByDescending(e => e.Company!.Title),
+                _ => employees.OrderBy(e => e.Name)
+            };
 
-            return NotFound();
-        }
 
-        public async Task<IActionResult> Edit(int? id)
-        {
-            Employee? employee = await dataContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
-            if(employee is not null)
-                return View(employee);
+            return View(await employees.ToListAsync());
 
-            return NotFound();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(Employee employee)
-        {
-            dataContext.Employees.Update(employee);
-            await dataContext.SaveChangesAsync();
-            return RedirectToAction("Index");
         }
     }
 }
