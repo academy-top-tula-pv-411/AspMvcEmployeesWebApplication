@@ -1,39 +1,110 @@
 ﻿@using AspMvcEmployeesWebApplication.Models
-@model IEnumerable<Employee>
+@model IndexViewModel
 
 @{
     ViewData["Title"] = "Employees List";
 }
 
 <h2>@ViewData["Title"]</h2>
+
+<form method="get">
+
+    <div>
+        <label>Name</label>
+        <input name="name" asp-for="@Model.SelectViewModel.SelectedName" />
+
+        <label>Companies</label>
+        <select name="companyId" asp-items="Model.SelectViewModel.Companies"></select>
+
+        <input type="submit" value="Select" />
+    </div>
+
+</form>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSort"]">
+                <a asp-action="Index"
+                   asp-route-page="@(Model.PageViewModel.PageNumber)"
+                    asp-route-sortOrder="@Model.SortViewModel.NameSort"
+                    asp-route-name="@Model.SelectViewModel.SelectedName"
+                    asp-route-companyId="@Model.SelectViewModel.SelectedCompanyId">
                     Name
                 </a>
+
+                @* <sort-header action="Index" 
+                             asc="@Model.SortViewModel.Asc"
+                             current-state="@Model.SortViewModel.CurrentSort"
+                             property="@Model.SortViewModel.NameSort">
+                    Name
+                </sort-header> *@
             </th>
             <th>
-               <a asp-action="Index" asp-route-sortOrder="@ViewData["AgeSort"]">
+                <a asp-action="Index"
+                   asp-route-page="@(Model.PageViewModel.PageNumber)"
+                    asp-route-sortOrder="@Model.SortViewModel.AgeSort"
+                   asp-route-name="@Model.SelectViewModel.SelectedName"
+                   asp-route-companyId="@Model.SelectViewModel.SelectedCompanyId">
                    Age
                 </a>
+
+                @* <sort-header action="Index"
+                             asc="@Model.SortViewModel.Asc"
+                             current-state="@Model.SortViewModel.CurrentSort"
+                             property="@Model.SortViewModel.AgeSort">
+                    Age
+                </sort-header> *@
             </th>
             <th>
-               <a asp-action="Index" asp-route-sortOrder="@ViewData["CompanySort"]">
+                <a asp-action="Index"
+                   asp-route-page="@(Model.PageViewModel.PageNumber)"
+                    asp-route-sortOrder="@Model.SortViewModel.CompanySort"
+                   asp-route-name="@Model.SelectViewModel.SelectedName"
+                   asp-route-companyId="@Model.SelectViewModel.SelectedCompanyId">
                     Company
                </a>
+                @* <sort-header action="Index"
+                             asc="@Model.SortViewModel.Asc"
+                             current-state="@Model.SortViewModel.CurrentSort"
+                             property="@Model.SortViewModel.CompanySort">
+                    Company
+                </sort-header> *@
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var e in Model)
+        @foreach(var e in Model.Employees)
         {
             <tr>
                 <td>@e.Name</td>
                 <td>@e.Age</td>
-                <td>@e.Company.Title</td>
+                <td>@e.Company?.Title</td>
             </tr>
         }
     </tbody>
 </table>
+
+<div>
+    @if(Model.PageViewModel.PreviousPage)
+    {
+        <a asp-action="Index"
+            asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+           asp-route-sortOrder="@Model.SortViewModel.CompanySort"
+           asp-route-name="@Model.SelectViewModel.SelectedName"
+           asp-route-companyId="@Model.SelectViewModel.SelectedCompanyId">
+            Previous Page
+        </a>
+    }
+    <b>@Model.PageViewModel.PageNumber</b>
+    @if (Model.PageViewModel.NextPage)
+    {
+        <a asp-action="Index"
+            asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+           asp-route-sortOrder="@Model.SortViewModel.CurrentSort"
+           asp-route-name="@Model.SelectViewModel.SelectedName"
+           asp-route-companyId="@Model.SelectViewModel.SelectedCompanyId">
+            Next Page
+        </a>
+    }
+</div>                             
